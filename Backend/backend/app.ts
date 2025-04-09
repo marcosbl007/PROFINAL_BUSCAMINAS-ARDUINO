@@ -4,6 +4,9 @@ import uploadRouter from "./routes/uploadFile"; // Importar el router de uploadC
 import addBombRouter from "./routes/addBomb"; // Importar el router de uploadConfig
 import arduinoRouter from './routes/arduino';
 import resetGameRouter from './routes/resetGame';
+import gameStateRouter from './routes/gameState';
+import scoresRouter from './routes/scores';
+import playerRouter from './routes/player';
 
 
 
@@ -58,6 +61,10 @@ app.use('/api/addBomb', addBombRouter);
 app.use('/api/arduino', arduinoRouter);
 
 app.use('/api/reset', resetGameRouter);
+
+app.use('/api/game', gameStateRouter);
+app.use('/api/scores', scoresRouter);
+app.use('/api/player', playerRouter);
 
 
 // Middleware para manejar rutas no encontradas

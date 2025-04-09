@@ -7,19 +7,28 @@
 #define DIR_TOP5      16  // 10 bytes (5 x uint16_t)
 #define DIR_ESTADO    26  // 3 bytes (puntaje + flags)
 #define DIR_CHECKSUM  29  // 1 byte (verificación)
+#define ESTADO_CONFIGURANDO 0
+#define ESTADO_JUGANDO      1
+
+// Variable para el estado actual del juego
+byte estadoJuegoActual = ESTADO_CONFIGURANDO; // Por defecto, se inicia en modo configuración
+
 
 // Estructura para el estado del juego
 struct EstadoJuego {
   uint16_t puntaje;       // 2 bytes
-  byte flags;             // 1 byte (bit 0: juego activo, bit 1: ganó)
+  byte flags;             // 1 byte (bit 0: juego activo, bit 1: perdió/game over, bit 2: ganó)
 };
 
 // Variables para la comunicación serial
 String inputString = "";         // String para almacenar la entrada
 boolean stringComplete = false;  // Bandera para indicar si el string está completo
+EstadoJuego estadoActual;  // Estado actual del juego
+uint16_t Score = 0;        // Variable para seguimiento del puntaje
 
 // Tablero de juego en memoria
-bool tablero[16] = {0};
+bool tablero[16] = {0};         // Posiciones con bombas
+bool verificadas[16] = {0};     // Posiciones ya verificadas
 
 // ======================
 // FUNCIONES PRINCIPALES
@@ -42,7 +51,39 @@ void cargarTablero(bool tablero[16]) {
 
 // Guarda un nuevo puntaje en el top 5 (si califica)
 void guardarPuntajeTop(uint16_t nuevoPuntaje) {
-  // Implementación omitida para simplificar
+  // Leer los puntajes actuales
+  uint16_t top5[5];
+  EEPROM.get(DIR_TOP5, top5);
+  
+  // Verificar si el nuevo puntaje califica para el top 5
+  bool califica = false;
+  int posicion = -1;
+  
+  // Encontrar la posición donde insertar (si califica)
+  for (int i = 0; i < 5; i++) {
+    if (nuevoPuntaje > top5[i]) {
+      califica = true;
+      posicion = i;
+      break;
+    }
+  }
+  
+  // Si califica, insertar en la posición correcta y desplazar el resto
+  if (califica) {
+    for (int i = 4; i > posicion; i--) {
+      top5[i] = top5[i-1];
+    }
+    top5[posicion] = nuevoPuntaje;
+    
+    // Guardar el nuevo top 5
+    EEPROM.put(DIR_TOP5, top5);
+    actualizarChecksum();
+    
+    Serial.print("¡Felicidades! Tu puntaje ");
+    Serial.print(nuevoPuntaje);
+    Serial.print(" quedó en la posición #");
+    Serial.println(posicion + 1);
+  }
 }
 
 // Guarda el estado del juego
@@ -74,30 +115,40 @@ bool datosValidos() {
   return EEPROM.read(DIR_CHECKSUM) == calcularChecksum();
 }
 
-// Añade esta nueva función para reset parcial (solo tablero)
+
+
+// ======================
+// FUNCIONES DE RESET
+// ======================
+
 void resetTablero() {
   // Tablero vacío
   for (int i = 0; i < 16; i++) {
-    tablero[i] = false;  // Limpiar la copia en memoria
-    EEPROM.update(DIR_TABLERO + i, 0); // Escribir directamente en EEPROM
+    tablero[i] = false;
+    verificadas[i] = false;
+    EEPROM.update(DIR_TABLERO + i, 0);
   }
   
-  // Estado inicial del juego (manteniendo puntaje)
-  EstadoJuego estado;
-  EEPROM.get(DIR_ESTADO, estado);
-  estado.flags = 0;  // Reiniciar flags pero mantener puntaje
-  EEPROM.put(DIR_ESTADO, estado);
+  // Reiniciar estado y score
+  estadoActual.flags = 0;
+  Score = 0;
+  estadoActual.puntaje = 0;
+  EEPROM.put(DIR_ESTADO, estadoActual);
+  
+  // Volver a modo configuración
+  estadoJuegoActual = ESTADO_CONFIGURANDO;
   
   // Actualizar checksum
   actualizarChecksum();
 }
 
-// Mantén la función inicializarEEPROM() como estaba (para reset completo)
+// Reset completo
 void inicializarEEPROM() {
   // Tablero vacío
   for (int i = 0; i < 16; i++) {
-    tablero[i] = false;  // Limpiar la copia en memoria
-    EEPROM.update(DIR_TABLERO + i, 0); // Escribir directamente sin calcular checksum cada vez
+    tablero[i] = false;     // Limpiar la copia en memoria
+    verificadas[i] = false; // Reiniciar verificaciones
+    EEPROM.update(DIR_TABLERO + i, 0); 
   }
   
   // Top 5 inicial
@@ -214,13 +265,54 @@ void procesarComando(String comando) {
     case 'F': // Reset completo (factory reset)
       Serial.println("Reiniciando sistema completo...");
       inicializarEEPROM();
+      // Asegurar que el estado cambie a CONFIGURANDO
+      estadoJuegoActual = ESTADO_CONFIGURANDO;
+      Score = 0; // Reiniciar el puntaje explícitamente
       Serial.println("OK: Sistema reiniciado completamente");
+      Serial.println("Estado cambiado a: CONFIGURANDO");
       mostrarTablero();
+      Serial.println("END_RESPONSE");
       break;
     
     case 'S': // Estado del juego
-      mostrarTablero();
+      mostrarTableroJugador();
       break;
+
+    case 'U': //Usuario Movimiento
+      verificarBomba(valor); 
+      break;
+
+    case 'P': // Mostrar TOP5
+      mostrarTop5();
+      break;
+
+    case 'E': // Cambiar estado del juego
+      if (valor == 0) {
+        // Cambiar a modo configuración
+        estadoJuegoActual = ESTADO_CONFIGURANDO;
+        Serial.println("Estado cambiado a: CONFIGURANDO");
+        Serial.println("END_RESPONSE");
+      } 
+      else if (valor == 1) {
+        // Verificar si hay bombas configuradas antes de permitir jugar
+        if (!hayBombasConfiguradas()) {
+          Serial.println("ERROR: No hay bombas configuradas. Debes colocar al menos una bomba.");
+          Serial.println("END_RESPONSE");
+          return;
+        }
+        
+        // Cambiar a modo juego
+        estadoJuegoActual = ESTADO_JUGANDO;
+        Serial.println("Estado cambiado a: JUGANDO");
+        Serial.println("END_RESPONSE");
+      }
+      else {
+        Serial.print("ERROR: Estado desconocido: ");
+        Serial.println(valor);
+        Serial.println("END_RESPONSE");
+      }
+      break;
+
         
     default:
       Serial.print("ERROR: Tipo de comando desconocido: ");
@@ -229,16 +321,172 @@ void procesarComando(String comando) {
   }
 }
 
+//CODIGO DE VERIFICACION DE BOMBA
+
+// Verifica si hay al menos una bomba configurada
+bool hayBombasConfiguradas() {
+  for (int i = 0; i < 16; i++) {
+    if (tablero[i]) {
+      return true; // Al menos hay una bomba
+    }
+  }
+  return false; // No hay bombas
+}
+
+void verificarBomba(int position) {
+  // Verificar que el juego esté en modo JUGANDO
+  if (estadoJuegoActual != ESTADO_JUGANDO) {
+    Serial.println("ERROR: No se pueden verificar posiciones en modo CONFIGURACIÓN");
+    Serial.println("END_RESPONSE");
+    return;
+  }
+  
+  // Verificar si el juego ya terminó
+  if ((estadoActual.flags & 0x06) != 0) { // 0x06 = bit 1 (perdió) o bit 2 (ganó)
+    Serial.println("ERROR: El juego ya terminó. Reinicie el tablero para jugar de nuevo.");
+    Serial.println("END_RESPONSE");
+    return;
+  }
+  
+  // El resto del código existente...  // Verificar que la posición sea válida (1-16)
+  if (position < 1 || position > 16) {
+    Serial.print("ERROR: Posición fuera de rango: ");
+    Serial.println(position);
+    Serial.println("END_RESPONSE"); 
+    return;
+  }
+  
+  // Ajustar a índice base 0
+  int index = position - 1;
+  
+  // Verificar si ya se comprobó esta posición
+  if (verificadas[index]) {
+    Serial.print("WARN: Esta posición ya fue verificada: ");
+    Serial.println(position);
+    Serial.println("END_RESPONSE");
+    return;
+  }
+  
+  // Marcar la posición como verificada
+  verificadas[index] = true;
+  
+  // Verificar si hay una bomba en esa posición
+  if (tablero[index]) {
+    Serial.print("UNA BOMBA: GAME OVER en posición: ");
+    Serial.println(position);
+    
+    // Actualizar estado y guardar puntaje en TOP5
+    estadoActual.flags |= 0x02;  // Marcar como juego perdido
+    guardarPuntajeTop(Score);    // Guardar en TOP5
+    
+    // Guardar estado en EEPROM
+    guardarEstado(estadoActual);
+    
+    // Mostrar puntaje final
+    Serial.print("Puntaje final: ");
+    Serial.println(Score);
+    
+    Serial.println("END_RESPONSE");
+    return;
+  }
+    
+  // Si no hay bomba, incrementar puntaje
+  Score++;
+  estadoActual.puntaje = Score;
+  
+  // Guardar estado actualizado
+  guardarEstado(estadoActual);
+  
+  // Enviar confirmación
+  Serial.print("OK: No hay bomba en posición: ");
+  Serial.println(position);
+  Serial.println("+1 PUNTO");
+  Serial.print("Score actual: "); 
+  Serial.println(Score); 
+  
+  // Verificar si el jugador ha ganado (todas las casillas sin bombas están verificadas)
+  if (verificarVictoria()) {
+    Serial.println("¡FELICIDADES! ¡HAS GANADO!");
+    
+    // Actualizar estado como juego ganado
+    estadoActual.flags |= 0x04;  // Bit 2 para indicar victoria
+    
+    // Guardar puntaje en TOP5
+    guardarPuntajeTop(Score);
+    
+    // Guardar estado actualizado
+    guardarEstado(estadoActual);
+  }
+  
+  // Mostrar el estado actual del tablero
+  mostrarTableroJugador();
+}
+
+// Muestra la tabla de puntuaciones TOP5
+void mostrarTop5() {
+  uint16_t top5[5];
+  EEPROM.get(DIR_TOP5, top5);
+  
+  Serial.println("=== TOP 5 PUNTAJES ===");
+  for (int i = 0; i < 5; i++) {
+    Serial.print(i + 1);
+    Serial.print(". ");
+    Serial.println(top5[i]);
+  }
+  Serial.println("=====================");
+  Serial.println("END_RESPONSE");
+}
+
+// Verifica si el jugador ha ganado (todas las casillas seguras están verificadas)
+bool verificarVictoria() {
+  for (int i = 0; i < 16; i++) {
+    // Si hay una casilla que no es bomba y no ha sido verificada, aún no ha ganado
+    if (!tablero[i] && !verificadas[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+// Muestra el tablero con información de casillas verificadas
+void mostrarTableroJugador() {
+  Serial.println("Estado del tablero:");
+  for (int i = 0; i < 16; i++) {
+    Serial.print(i + 1);
+    Serial.print(": ");
+    
+    if (verificadas[i]) {
+      // Si fue verificada, mostrar si tenía bomba o no
+      Serial.println(tablero[i] ? "BOMBA" : "SEGURO");
+    } else {
+      // Si no ha sido verificada, mostrar como desconocida
+      Serial.println("?");
+    }
+  }
+  Serial.println("END_RESPONSE");
+}
+
 void setup() {
   // Inicializar comunicación serial
   Serial.begin(9600);
   delay(1000); // Dar tiempo para que se establezca la comunicación
   
+  // Verificar integridad de datos y cargar estado
+  if (!datosValidos()) {
+    Serial.println("Datos corruptos o primer inicio. Inicializando EEPROM...");
+    inicializarEEPROM();
+  }
+  
+  // Cargar tablero y estado actual
+  cargarTablero(tablero);
+  EEPROM.get(DIR_ESTADO, estadoActual);
+  Score = estadoActual.puntaje;
+  
   Serial.println("Sistema de juego iniciado");
-  Serial.println("END_RESPONSE"); // Para que no se quede esperando al inicio
+  Serial.println("END_RESPONSE");
   
   // Inicializar strings para comunicación
-  inputString.reserve(20); // Aumentar el tamaño por seguridad
+  inputString.reserve(20);
 }
 
 void loop() {
