@@ -1,6 +1,17 @@
 #include <EEPROM.h>
 
 // ======================
+// CONFIGURACIÓN DE PINES
+// ======================
+
+
+
+#define PIN_LED_JUGANDO      2
+#define PIN_LED_GANASTE      3
+#define PIN_LED_GAMEOVER     4
+
+
+// ======================
 // DEFINICIÓN DE ESTRUCTURA
 // ======================
 #define DIR_TABLERO   0   // 16 bytes (4x4)
@@ -131,6 +142,7 @@ void resetTablero() {
   
   // Reiniciar estado y score
   estadoActual.flags = 0;
+  actualizarLEDs();  // Añadir esta línea
   Score = 0;
   estadoActual.puntaje = 0;
   EEPROM.put(DIR_ESTADO, estadoActual);
@@ -159,6 +171,8 @@ void inicializarEEPROM() {
   EstadoJuego estadoInicial;
   estadoInicial.puntaje = 0;
   estadoInicial.flags = 0;
+  estadoActual.flags = 0;
+  actualizarLEDs(); 
   EEPROM.put(DIR_ESTADO, estadoInicial);
   
   // Calcular checksum una sola vez al final
@@ -171,6 +185,12 @@ void inicializarEEPROM() {
 
 // Añade una bomba en la posición especificada
 void addBombToTable(int position) {
+
+  if (estadoJuegoActual != ESTADO_CONFIGURANDO) {
+    Serial.println("ERROR: No se pueden agregar bombas en modo JUGANDO");
+    Serial.println("END_RESPONSE");
+    return;
+  }
   // Verificar que la posición sea válida (1-16)
   if (position < 1 || position > 16) {
     Serial.print("ERROR: Posición fuera de rango: ");
@@ -207,7 +227,7 @@ void addBombToTable(int position) {
 
 // Muestra el tablero por serial para depuración
 void mostrarTablero() {
-  Serial.println("Estado del tablero:");
+  Serial.println("OK: Estado del tablero:");
   for (int i = 0; i < 16; i++) {
     Serial.print(i + 1);
     Serial.print(": ");
@@ -256,20 +276,20 @@ void procesarComando(String comando) {
       break;
     
     case 'R': // Reset parcial (solo tablero)
-      Serial.println("Reiniciando tablero...");
+      Serial.println("OK: Reiniciando tablero...");
       resetTablero();
       Serial.println("OK: Tablero reiniciado");
       mostrarTablero();
       break;
     
     case 'F': // Reset completo (factory reset)
-      Serial.println("Reiniciando sistema completo...");
+      Serial.println("OK: Reiniciando sistema completo...");
       inicializarEEPROM();
       // Asegurar que el estado cambie a CONFIGURANDO
       estadoJuegoActual = ESTADO_CONFIGURANDO;
       Score = 0; // Reiniciar el puntaje explícitamente
       Serial.println("OK: Sistema reiniciado completamente");
-      Serial.println("Estado cambiado a: CONFIGURANDO");
+      Serial.println("OK: Estado cambiado a: CONFIGURANDO");
       mostrarTablero();
       Serial.println("END_RESPONSE");
       break;
@@ -280,6 +300,7 @@ void procesarComando(String comando) {
 
     case 'U': //Usuario Movimiento
       verificarBomba(valor); 
+      
       break;
 
     case 'P': // Mostrar TOP5
@@ -290,7 +311,7 @@ void procesarComando(String comando) {
       if (valor == 0) {
         // Cambiar a modo configuración
         estadoJuegoActual = ESTADO_CONFIGURANDO;
-        Serial.println("Estado cambiado a: CONFIGURANDO");
+        Serial.println("OK: Estado cambiado a: CONFIGURANDO");
         Serial.println("END_RESPONSE");
       } 
       else if (valor == 1) {
@@ -303,7 +324,7 @@ void procesarComando(String comando) {
         
         // Cambiar a modo juego
         estadoJuegoActual = ESTADO_JUGANDO;
-        Serial.println("Estado cambiado a: JUGANDO");
+        Serial.println("OK: Estado cambiado a: JUGANDO");
         Serial.println("END_RESPONSE");
       }
       else {
@@ -378,6 +399,7 @@ void verificarBomba(int position) {
     // Actualizar estado y guardar puntaje en TOP5
     estadoActual.flags |= 0x02;  // Marcar como juego perdido
     guardarPuntajeTop(Score);    // Guardar en TOP5
+    actualizarLEDs();  // Añadir esta línea
     
     // Guardar estado en EEPROM
     guardarEstado(estadoActual);
@@ -410,7 +432,7 @@ void verificarBomba(int position) {
     
     // Actualizar estado como juego ganado
     estadoActual.flags |= 0x04;  // Bit 2 para indicar victoria
-    
+    actualizarLEDs();  // Añadir esta línea
     // Guardar puntaje en TOP5
     guardarPuntajeTop(Score);
     
@@ -466,6 +488,24 @@ void mostrarTableroJugador() {
   Serial.println("END_RESPONSE");
 }
 
+void actualizarLEDs() {
+  // Apagar todos los LEDs primero
+  digitalWrite(PIN_LED_JUGANDO, LOW);
+  digitalWrite(PIN_LED_GANASTE, LOW);
+  digitalWrite(PIN_LED_GAMEOVER, LOW);
+  
+  // Encender el LED según el estado de flags
+  if (estadoActual.flags & 0x02) {         // Bit 1 - Game over
+    digitalWrite(PIN_LED_GAMEOVER, HIGH);
+  } 
+  else if (estadoActual.flags & 0x04) {    // Bit 2 - Victoria
+    digitalWrite(PIN_LED_GANASTE, HIGH);
+  }
+  else {                                   // Estado normal (incluye configurando y jugando)
+    digitalWrite(PIN_LED_JUGANDO, HIGH);
+  }
+}
+
 void setup() {
   // Inicializar comunicación serial
   Serial.begin(9600);
@@ -481,13 +521,28 @@ void setup() {
   cargarTablero(tablero);
   EEPROM.get(DIR_ESTADO, estadoActual);
   Score = estadoActual.puntaje;
+  actualizarLEDs();  // Añadir esta línea
   
   Serial.println("Sistema de juego iniciado");
   Serial.println("END_RESPONSE");
   
   // Inicializar strings para comunicación
   inputString.reserve(20);
-}
+
+
+    
+    // Configurar los pines de LED como salida
+    pinMode(PIN_LED_JUGANDO, OUTPUT);
+    pinMode(PIN_LED_GANASTE, OUTPUT);
+    pinMode(PIN_LED_GAMEOVER, OUTPUT);
+    
+    // Establecer estado inicial de LEDs
+    actualizarLEDs();
+  }
+  
+  // Función para actualizar LEDs según las flags
+
+
 
 void loop() {
   // Procesar comandos completos
