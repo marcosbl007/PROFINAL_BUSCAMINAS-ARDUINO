@@ -1,0 +1,110 @@
+/* Establecer estilos básicos */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Incluir la fuente personalizada */
+@font-face {
+  font-family: 'Buscaminas';  /* Nombre de la fuente que usaremos */
+  src: url('C:\Users\marco\Desktop\AREA PROFESIONAL\2025\1er Semestre\Orga\Pro Final\ORGA_PROFINAL_SUCIO\frontend\src\fonts\DebugFreeTrial-MVdYB.otf') format('opentype');  /* Ruta del archivo .otf */
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #202020; /* Fondo oscuro para el cuerpo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0; /* Eliminar márgenes por defecto */
+}
+
+/* Contenedor de fondo */
+.background-container {
+  position: fixed;  /* Posicionamos la imagen de fondo de manera fija */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('https://th.bing.com/th/id/R.57c6f2d6029be4fa41a7cbc253e8af63?rik=Tnbmt%2b4uLgUJpQ&pid=ImgRaw&r=0'); /* Imagen de fondo */
+  background-size: cover;  /* Aseguramos que la imagen cubra toda la pantalla */
+  background-position: center;  /* Centrar la imagen */
+  background-repeat: no-repeat;  /* Evitar que la imagen se repita */
+  filter: brightness(0.9); /* Oscurecer ligeramente el fondo */
+}
+
+/* Panel transparente centrado */
+.center-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Centra el panel */
+  background-color: rgba(0, 0, 0, 0.4); /* Fondo oscuro con opacidad */
+  padding: 4rem;  /* Aumentamos el padding para más espacio dentro */
+  border-radius: 12px;
+  text-align: center;
+  width: 800px;  /* Aumentamos el ancho máximo */
+  height: 500px;  /* Aumentamos la altura */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 1);
+  color: white; /* Texto blanco dentro del panel */
+}
+
+/* Título del panel */
+.panel-title {
+  font-size: 9.5rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  font-family: 'Buscaminas', sans-serif;  /* Aplicamos la fuente personalizada */
+  margin-top: -50px; /* Moverlo un poco hacia arriba */
+}
+
+/* Descripción del panel */
+.panel-description {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  margin-top: -20px;
+}
+
+/* Botón dentro del panel */
+.panel-button {
+  background-color: #4CAF50; /* Botón verde */
+  color: #fff;
+  font-size: 2rem;
+  padding: 15px 30px;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+/* Animación del botón */
+.panel-button:hover {
+  background-color: #45a049; /* Cambio de color en hover */
+  transform: scale(1.1); /* Efecto de agrandamiento */
+}
+
+/* Contenedor de la bomba */
+.bomb-container {
+  margin-top: 30px; /* Separar la bomba del botón */
+}
+
+/* Estilo del icono de la bomba */
+.bomb-icon {
+  width: 95px;  /* Tamaño del icono */
+  height: 95px; /* Tamaño del icono */
+  animation: rotateBomb 2s linear infinite; /* Rotación del icono */
+}
+
+/* Animación para girar el icono */
+@keyframes rotateBomb {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

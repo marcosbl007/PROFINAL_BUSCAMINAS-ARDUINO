@@ -1,0 +1,139 @@
+/* Establecer estilos básicos */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Incluir la fuente personalizada */
+@font-face {
+  font-family: 'Buscaminas';  /* Nombre de la fuente que usaremos */
+  src: url('./fonts/DebugFreeTrial-MVdYB.otf') format('opentype');  /* Ruta del archivo .otf */
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #202020; /* Fondo oscuro para el cuerpo */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0; /* Eliminar márgenes por defecto */
+}
+
+/* Contenedor de fondo */
+.background-container {
+  position: fixed;  /* Posicionamos la imagen de fondo de manera fija */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('https://th.bing.com/th/id/R.57c6f2d6029be4fa41a7cbc253e8af63?rik=Tnbmt%2b4uLgUJpQ&pid=ImgRaw&r=0'); /* Imagen de fondo */
+  background-size: cover;  /* Aseguramos que la imagen cubra toda la pantalla */
+  background-position: center;  /* Centrar la imagen */
+  background-repeat: no-repeat;  /* Evitar que la imagen se repita */
+  filter: brightness(0.9); /* Oscurecer ligeramente el fondo */
+}
+
+/* Panel transparente centrado */
+.center-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Centra el panel */
+  background-color: rgba(0, 0, 0, 0.4); /* Fondo oscuro con opacidad */
+  padding: 4rem;  /* Aumentamos el padding para más espacio dentro */
+  border-radius: 12px;
+  text-align: center;
+  width: 800px;  /* Aumentamos el ancho máximo */
+  height: 500px;  /* Aumentamos la altura */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 1);
+  color: white; /* Texto blanco dentro del panel */
+}
+
+/* Título del panel */
+.panel-title {
+  font-size: 8rem; /* Ajuste de tamaño para que se vea correctamente */
+  font-weight: bold;
+  margin-bottom: 1rem;
+  font-family: 'Buscaminas', sans-serif;  /* Aplicamos la fuente personalizada */
+  margin-top: -50px; /* Moverlo un poco hacia arriba */
+}
+
+/* Estilos del tablero */
+.board-container {
+  margin-top: 30px; /* Separar el tablero del título */
+  margin-left: -240px; /* Mover el tablero ligeramente hacia la izquierda */
+  display: grid;
+  grid-template-columns: repeat(4, 60px); /* 4 columnas con ancho fijo */
+  grid-template-rows: repeat(4, 60px); /* 4 filas con la misma altura */
+  gap: 7px; /* Separación entre celdas */
+  justify-content: center; /* Centrar el tablero horizontalmente */
+  align-content: center; /* Centrar el tablero verticalmente */
+}
+
+/* Estilo de cada celda del tablero */
+.board-cell {
+  width: 60px;
+  height: 60px;
+  background-color: #ddd;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+/* Hover para cada celda */
+.board-cell:hover {
+  background-color: #ccc;
+}
+
+/* Estilo de los botones */
+.button-container {
+  display: flex;
+  flex-direction: column; /* Colocamos los botones en columna */
+  gap: 25px;
+  position: absolute;
+  right: 100px; /* Colocamos los botones a la derecha */
+  top: 62%;
+  transform: translateY(-50%); /* Centramos los botones verticalmente */
+}
+
+/* Estilo de los botones */
+.game-button {
+  background-color: #4CAF50; /* Botón verde */
+  color: #fff;
+  font-size: 1.2rem;
+  padding: 10px 2px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+/* Animación del botón */
+.game-button:hover {
+  background-color: #45a049; /* Cambio de color en hover */
+  transform: scale(1.1); /* Efecto de agrandamiento */
+}
+
+/* Animación del botón al hacer click */
+.game-button.animate-click {
+  animation: clickEffect 1s ease-in-out;
+}
+
+@keyframes clickEffect {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
