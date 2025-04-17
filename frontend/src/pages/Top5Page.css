@@ -1,0 +1,112 @@
+/* Fuente personalizada */
+@font-face {
+    font-family: 'Buscaminas';
+    src: url('./fonts/DebugFreeTrial-MVdYB.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+  }
+  
+  /* Estilos base */
+  body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #202020;
+  }
+  
+  /* Fondo fijo (puedes agregar una imagen si quieres) */
+  .background-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://th.bing.com/th/id/R.57c6f2d6029be4'); /* Cambia esta imagen si quieres */
+    background-size: cover;
+    background-position: center;
+    z-index: -1;
+  }
+  
+  /* Panel principal */
+  .center-panel {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    width: 70%;
+    max-width: 600px;
+    text-align: center;
+  }
+  
+  /* Título */
+  .panel-title {
+    font-family: 'Buscaminas', sans-serif;
+    font-size: 3rem;
+    color: #fff;
+    margin-bottom: 30px;
+  }
+  
+  /* Tablero */
+  .board-container {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .board-cell {
+    width: 60px;
+    height: 60px;
+    background-color: #333;
+    border: 2px solid #555;
+    border-radius: 8px;
+  }
+  
+  /* Botones */
+  .button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  .game-button {
+    padding: 12px 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #fff;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 200px;
+    transition: transform 0.2s, background-color 0.3s;
+  }
+  
+  .game-button:hover {
+    background-color: #45a049;
+    transform: scale(1.05);
+  }
+  
+  .animate-click:active {
+    transform: scale(0.95);
+  }
+  
+  /* Estilos para el listado de puntuaciones */
+  .score-list {
+    background-color: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 30px;
+    color: #fff;
+    font-size: 1.2rem;
+    font-family: 'Courier New', Courier, monospace;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  

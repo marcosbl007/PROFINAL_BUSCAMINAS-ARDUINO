@@ -2,15 +2,15 @@ conf_ini
 //asdjdia
 
 ADD x:1, y:1 
-ADD x:2, y:1 
+
 ADD x:3, y:1
 ADD x:4, y:1 
-ADD x:1, y:2
+
 ADD x:2, y:2
 ADD x:3, y:2
-ADD x:4, y:2
+
 ADD x:1, y:3
-ADD x:2, y:3 
+
 ADD x:3, y:3 
 
 

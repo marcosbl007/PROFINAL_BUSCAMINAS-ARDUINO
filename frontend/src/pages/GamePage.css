@@ -96,9 +96,9 @@ body {
 .button-container {
   display: flex;
   flex-direction: column; /* Colocamos los botones en columna */
-  gap: 25px;
+  gap: 15px;
   position: absolute;
-  right: 100px; /* Colocamos los botones a la derecha */
+  right: 150px; /* Colocamos los botones a la derecha */
   top: 62%;
   transform: translateY(-50%); /* Centramos los botones verticalmente */
 }
@@ -108,7 +108,7 @@ body {
   background-color: #4CAF50; /* Botón verde */
   color: #fff;
   font-size: 1.2rem;
-  padding: 10px 2px;
+  padding: 9px 2px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
@@ -136,4 +136,25 @@ body {
   100% {
     transform: scale(1);
   }
+}
+
+/* Estilo para las celdas que contienen una bomba */
+.board-cell.bomb {
+  background-color: red; /* Puedes cambiar el color de fondo */
+  position: relative;
+}
+
+.board-cell.bomb img {
+  position: absolute;
+  width: 50px; /* Ajusta el tamaño de la bomba */
+  height: 50px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: block;
+}
+
+/* Estilo cuando las bombas están ocultas (debería ocultarse al cambiar el estado) */
+.board-cell.bomb img {
+  display: none; /* Oculta las bombas cuando no son visibles */
 }
