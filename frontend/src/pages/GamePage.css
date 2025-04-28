@@ -140,14 +140,19 @@ body {
 
 /* Estilo para las celdas que contienen una bomba */
 .board-cell.bomb {
-  background-color: red; /* Puedes cambiar el color de fondo */
+  background-color: red;
+  position: relative;
+}
+
+.board-cell.safe {
+  background-color: green; /* Verde para celdas seguras */
   position: relative;
 }
 
 .board-cell.bomb img {
   position: absolute;
-  width: 50px; /* Ajusta el tamaño de la bomba */
-  height: 50px;
+  width: 30; /* Ajusta el tamaño de la bomba */
+  height: 30px;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
