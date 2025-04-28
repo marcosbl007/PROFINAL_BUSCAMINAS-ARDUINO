@@ -1,14 +1,36 @@
 #include <EEPROM.h>
+#include <LiquidCrystal.h>
+#include <Keypad.h> 
 
 // ======================
 // CONFIGURACIÓN DE PINES
 // ======================
 
 
+#define PIN_LED_JUGANDO      13
+#define PIN_LED_GANASTE      12
+#define PIN_LED_GAMEOVER     A0
 
-#define PIN_LED_JUGANDO      2
-#define PIN_LED_GANASTE      3
-#define PIN_LED_GAMEOVER     4
+LiquidCrystal lcd(2, 3, 4, 5, 6, 7); // Configura los pines del LCD
+
+
+// Definición del teclado 4x3
+const byte FILAS = 4;
+const byte COLUMNAS = 3;
+char teclas[FILAS][COLUMNAS] = {
+  {'1', '2', '3'},
+  {'4', '5', '6'},
+  {'7', '8', '9'},
+  {'*', '0', '#'}
+};
+
+byte pinesFilas[FILAS] = {8, 9, 10, 11}; // Ajusta si usas otros pines
+byte pinesColumnas[COLUMNAS] = {A1, A2, A3}; // Ajusta si usas otros pines
+
+Keypad teclado = Keypad(makeKeymap(teclas), pinesFilas, pinesColumnas, FILAS, COLUMNAS);
+
+// Variable para almacenar el número ingresado
+String entradaTeclado = "";
 
 
 // ======================
@@ -433,6 +455,10 @@ void verificarBomba(int position) {
     // Actualizar estado como juego ganado
     estadoActual.flags |= 0x04;  // Bit 2 para indicar victoria
     actualizarLEDs();  // Añadir esta línea
+    // Mostrar mensaje en el LCD
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("GANASTE");
     // Guardar puntaje en TOP5
     guardarPuntajeTop(Score);
     
@@ -488,28 +514,69 @@ void mostrarTableroJugador() {
   Serial.println("END_RESPONSE");
 }
 
+
+// Muestra el TOP 5 en el LCD
+void mostrarTop5EnLCD() {
+  uint16_t top5[5];
+  EEPROM.get(DIR_TOP5, top5);
+
+  for (int i = 0; i < 5; i++) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("TOP " + String(i + 1));
+
+    lcd.setCursor(0, 1);
+    if (top5[i] == 0 || top5[i] > 9999) {
+      lcd.print("-");
+    } else {
+      lcd.print(String(top5[i]));
+    }
+
+    delay(2000); // Espera 2 segundos mostrando cada posición
+  }
+
+}
+
+
+
 void actualizarLEDs() {
   // Apagar todos los LEDs primero
   digitalWrite(PIN_LED_JUGANDO, LOW);
   digitalWrite(PIN_LED_GANASTE, LOW);
   digitalWrite(PIN_LED_GAMEOVER, LOW);
   
-  // Encender el LED según el estado de flags
-  if (estadoActual.flags & 0x02) {         // Bit 1 - Game over
+  if (estadoActual.flags & 0x02) { // Bit 1 - Game over
     digitalWrite(PIN_LED_GAMEOVER, HIGH);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("GAME OVER");
+    delay(3000); // Espera 3 segundos
+    mostrarTop5EnLCD();
   } 
-  else if (estadoActual.flags & 0x04) {    // Bit 2 - Victoria
+  else if (estadoActual.flags & 0x04) { // Bit 2 - Victoria
     digitalWrite(PIN_LED_GANASTE, HIGH);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("GANASTE");
+    delay(3000); // Espera 3 segundos
+    mostrarTop5EnLCD();
   }
-  else {                                   // Estado normal (incluye configurando y jugando)
+  else {
     digitalWrite(PIN_LED_JUGANDO, HIGH);
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("JUGANDO");
   }
 }
+
 
 void setup() {
   // Inicializar comunicación serial
   Serial.begin(9600);
+  Serial1.begin(9600);
   delay(1000); // Dar tiempo para que se establezca la comunicación
+
+  lcd.begin(16, 2);
   
   // Verificar integridad de datos y cargar estado
   if (!datosValidos()) {
@@ -558,6 +625,49 @@ void loop() {
     inputString = "";
     stringComplete = false;
   }
+
+  // SOLO SI el juego está en modo JUGANDO
+  if (estadoJuegoActual == ESTADO_JUGANDO) {
+    char tecla = teclado.getKey();
+    
+    if (tecla) { // Si alguna tecla fue presionada
+      if (tecla >= '0' && tecla <= '9') {
+        entradaTeclado += tecla;
+        lcd.clear();
+        lcd.print("Casilla: ");
+        lcd.print(entradaTeclado);
+      }
+      else if (tecla == '*') { // Confirmar jugada
+        if (entradaTeclado.length() > 0) {
+          int casilla = entradaTeclado.toInt();
+          verificarBomba(casilla); // Llama tu función
+          entradaTeclado = ""; // Limpia entrada
+          delay(1000); // Pequeña pausa
+          actualizarLEDs(); // Actualiza LEDs y LCD
+        }
+      }
+      else if (tecla == '#') { // Borrar entrada
+        entradaTeclado = "";
+        lcd.clear();
+        lcd.print("Casilla: ");
+      }
+    }
+  }
+
+  // Nuevo: Bluetooth - lectura de comando
+  if (Serial1.available()) {
+    String entradaBluetooth = Serial1.readStringUntil('\n');
+    entradaBluetooth.trim(); // Quitar espacios
+    if (entradaBluetooth.length() > 0) {
+      int casilla = entradaBluetooth.toInt();
+      if (casilla >= 1 && casilla <= 16) {
+        verificarBomba(casilla);
+        delay(1000);
+        actualizarLEDs();
+      }
+    }
+  }
+
 }
 
 // Procesar evento de recepción serial

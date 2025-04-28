@@ -21,7 +21,7 @@ class ArduinoSerialManager extends EventEmitter {
     this.tableManager = new TableManager(this);
     this.responseProcessor = new ResponseProcessor(this);
     this.serialConnection = new SerialConnection(
-      { portName: 'COM2', baudRate: 9600 },
+      { portName: 'COM11', baudRate: 9600 },
       this
     );
     
