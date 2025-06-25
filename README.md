@@ -194,12 +194,6 @@ Para información detallada sobre los endpoints disponibles, consulte el archivo
 - `npm run build` - Build producción
 - `npm run lint` - Verificar código
 
-### Contribución
-1. Fork del proyecto
-2. Crear rama feature (`git checkout -b feature/nueva-caracteristica`)
-3. Commit cambios (`git commit -m 'Añadir nueva característica'`)
-4. Push rama (`git push origin feature/nueva-caracteristica`)
-5. Crear Pull Request
 
 ## 📝 Licencia
 
