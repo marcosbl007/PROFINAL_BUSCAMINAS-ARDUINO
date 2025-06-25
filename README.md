@@ -1,58 +1,139 @@
-# 🎮 Buscaminas Arduino - Proyecto Final
+<div align="center">
 
-Un juego de buscaminas interactivo que combina una interfaz web moderna con control físico a través de Arduino, desarrollado como proyecto final de Organización de Computadoras.
+# 🎮 Buscaminas Arduino 
 
-## 📋 Descripción del Proyecto
+[![Made with React](https://img.shields.io/badge/Made%20with-React-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Arduino](https://img.shields.io/badge/Arduino-00979D?style=for-the-badge&logo=arduino&logoColor=white)](https://www.arduino.cc/)
+[![Proteus](https://img.shields.io/badge/Proteus-008080?style=for-the-badge&logo=proteus&logoColor=white)](https://www.labcenter.com/)
 
-Este sistema integra tres componentes principales:
+*Un juego de buscaminas revolucionario que fusiona la experiencia web moderna con controles físicos Arduino*
 
-- **Frontend**: Interfaz web desarrollada en React + Vite
-- **Backend**: API REST en TypeScript con Express
-- **Arduino**: Control físico del juego mediante comunicación serial
+</div>
 
-El proyecto permite jugar buscaminas tanto desde la interfaz web como mediante controles físicos conectados al Arduino, con sincronización en tiempo real entre ambas interfaces.
+---
+
+## 🌟 ¿Qué hace especial a este proyecto?
+
+<table>
+<tr>
+<td width="50%">
+
+### 🎯 **Experiencia Dual**
+Juega desde tu navegador **O** usa controles físicos Arduino - ¡ambos sincronizados en tiempo real!
+
+### 🚀 **Tecnología Moderna**
+Stack completo con React, TypeScript y comunicación serial bidireccional
+
+### 🏗️ **Arquitectura Profesional**
+API REST robusta con manejo de estados y persistencia de datos
+
+</td>
+<td width="50%">
+
+### 📡 **Innovación Hardware**
+Simulación completa en Proteus con controles táctiles reales
+
+### 🎮 **Jugabilidad Avanzada**
+Sistema de puntuaciones, configuraciones personalizables y análisis sintáctico
+
+### 🔧 **Fácil Setup**
+Scripts automatizados y documentación completa para desarrollo
+
+</td>
+</tr>
+</table>
+
+---
 
 ## 🏗️ Arquitectura del Sistema
 
-```text
-┌─────────────────┐    HTTP/REST    ┌─────────────────┐    Serial    ┌─────────────────┐
-│   Frontend      │ ←──────────────→ │    Backend      │ ←───────────→ │    Arduino      │
-│   (React)       │                 │  (TypeScript)   │               │   (Proteus)     │
-└─────────────────┘                 └─────────────────┘               └─────────────────┘
+<div align="center">
+
+```mermaid
+graph TB
+    subgraph "🌐 Frontend Layer"
+        A[React App<br/>🎨 UI/UX]
+        B[Game Page<br/>🎮 Tablero]
+        C[Top5 Page<br/>🏆 Rankings]
+    end
+    
+    subgraph "⚡ Backend Layer"
+        D[Express Server<br/>📡 API REST]
+        E[Serial Manager<br/>🔌 Arduino Com]
+        F[Game Logic<br/>🧠 Buscaminas]
+    end
+    
+    subgraph "🔧 Hardware Layer"
+        G[Arduino UNO<br/>🤖 Microcontroller]
+        H[Proteus Sim<br/>🖥️ Virtual Circuit]
+    end
+    
+    A <--> D
+    B <--> D
+    C <--> D
+    D <--> E
+    E <--> G
+    G <--> H
+    
+    style A fill:#61DAFB,stroke:#21759B,color:#000
+    style D fill:#68217A,stroke:#4A154B,color:#fff
+    style G fill:#00979D,stroke:#006A75,color:#fff
 ```
 
-## 🚀 Características Principales
+</div>
 
-- 🎯 **Juego de Buscaminas** con tablero 4x4
-- 🔧 **Control Dual**: Web y Arduino
-- 📡 **Comunicación Serial** en tiempo real
-- 🏆 **Sistema de Puntuaciones** (Top 5)
-- 📁 **Carga de Configuraciones** desde archivo
-- 🎨 **Interfaz Moderna** y responsive
+## ✨ Características Principales
 
-## 🛠️ Tecnologías Utilizadas
+<div align="center">
 
-### Frontend
+| 🎯 **JUEGO** | 🔧 **CONTROL** | 📡 **COMUNICACIÓN** |
+|:---:|:---:|:---:|
+| Tablero 4x4 interactivo | Dual: Web + Arduino | Serial en tiempo real |
+| **🏆 RANKINGS** | **📁 CONFIGURACIÓN** | **🎨 INTERFAZ** |
+| Sistema Top 5 | Carga desde archivo | Moderna y responsive |
 
-- ⚛️ **React 19.0.0**
-- ⚡ **Vite** (bundler y dev server)
-- 🎨 **CSS3** con diseño responsive
-- 🌐 **Axios** para comunicación HTTP
-- 🧭 **React Router DOM** para navegación
+</div>
 
-### Backend
+### � **Demo del Juego**
 
-- 📘 **TypeScript 5.8.2**
-- 🚀 **Express 5.1.0**
-- 🔌 **SerialPort 13.0.0** para comunicación Arduino
-- 📝 **Jison 0.4.18** para análisis sintáctico
-- 🔒 **CORS** habilitado para desarrollo
+```
+┌─────────────────────────────────┐
+│  🎯 BUSCAMINAS ARDUINO v1.0     │
+├─────────────────────────────────┤
+│  ┌───┬───┬───┬───┐              │
+│  │ 1 │ 2 │ 💣│ 1 │   🕹️ Controles: │
+│  ├───┼───┼───┼───┤   • Click Web   │
+│  │ 2 │ 💣│ 3 │ 2 │   • Botones HW  │
+│  ├───┼───┼───┼───┤   • Serial CMD  │
+│  │ 💣│ 3 │ 2 │ 💣│              │
+│  ├───┼───┼───┼───┤   🏆 Score: 850 │
+│  │ 1 │ 2 │ 2 │ 1 │   ⏱️ Time: 02:45│
+│  └───┴───┴───┴───┘              │
+└─────────────────────────────────┘
+```
 
-### Hardware
+## 🛠️ Stack Tecnológico
 
-- 🔌 **Arduino** (simulado en Proteus)
-- 🖥️ **Proteus** para simulación de circuitos
-- 📡 **Virtual Serial Port Driver** para comunicación
+<div align="center">
+
+### 💻 **Frontend Moderno**
+[![React](https://img.shields.io/badge/React-19.0.0-61DAFB?style=flat-square&logo=react)](https://reactjs.org/)
+[![Vite](https://img.shields.io/badge/Vite-Latest-646CFF?style=flat-square&logo=vite)](https://vitejs.dev/)
+[![CSS3](https://img.shields.io/badge/CSS3-Responsive-1572B6?style=flat-square&logo=css3)](https://www.w3.org/Style/CSS/)
+
+### 🚀 **Backend Robusto**
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8.2-3178C6?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+[![Express](https://img.shields.io/badge/Express-5.1.0-000000?style=flat-square&logo=express)](https://expressjs.com/)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-339933?style=flat-square&logo=node.js)](https://nodejs.org/)
+
+### 🔧 **Hardware & Simulación**
+[![Arduino](https://img.shields.io/badge/Arduino-UNO-00979D?style=flat-square&logo=arduino)](https://www.arduino.cc/)
+[![Proteus](https://img.shields.io/badge/Proteus-Simulation-FF6B35?style=flat-square)](https://www.labcenter.com/)
+
+</div>
+
+---
 
 ## 📋 Prerrequisitos
 
@@ -69,51 +150,69 @@ El proyecto permite jugar buscaminas tanto desde la interfaz web como mediante c
 - Configurar Virtual Serial Port Driver para simular conexión Arduino
 - Tener Proteus instalado y configurado
 
-## 🚀 Instalación y Ejecución
+## 🚀 Guía de Instalación Rápida
 
-### 1. Clonar el Repositorio
+<div align="center">
+
+### ⚡ **Setup en 4 pasos simples**
+
+</div>
+
+<table>
+<tr>
+<td width="25%" align="center">
+
+### 📦 **1. CLONAR**
 ```bash
-git clone <url-del-repositorio>
+git clone <repo-url>
 cd PROFINAL_BUSCAMINAS-ARDUINO
 ```
 
-### 2. Configurar Backend
+</td>
+<td width="25%" align="center">
+
+### 🔧 **2. BACKEND**
 ```bash
 cd Backend
 npm install
 ```
 
-### 3. Configurar Frontend
+</td>
+<td width="25%" align="center">
+
+### ⚛️ **3. FRONTEND**
 ```bash
 cd ../frontend
 npm install
 ```
 
-### 4. Configurar Arduino/Proteus
-1. Abrir `Arduino/ProteusFinalORGA.pdsprj` en Proteus
-2. Configurar Virtual Serial Port Driver
-3. Establecer conexión serial (puerto COM)
+</td>
+<td width="25%" align="center">
 
-## ▶️ Ejecución del Sistema
-
-### 1. Iniciar Simulación Arduino
+### 🤖 **4. ARDUINO**
 - Abrir Proteus
-- Cargar el proyecto `ProteusFinalORGA.pdsprj`
-- Iniciar simulación
+- Cargar `.pdsprj`
+- Configurar COM
 
-### 2. Ejecutar Backend
-```bash
-cd Backend
-npx ts-node server.ts
-```
-El servidor estará disponible en `http://localhost:3000`
+</td>
+</tr>
+</table>
 
-### 3. Ejecutar Frontend
-```bash
-cd frontend
-npm run dev
-```
-La aplicación web estará disponible en `http://localhost:5173`
+---
+
+## ▶️ **Ejecución del Sistema**
+
+<div align="center">
+
+### 🎯 **¡3 terminales, 1 experiencia épica!**
+
+</div>
+
+| **Terminal 1: Arduino** | **Terminal 2: Backend** | **Terminal 3: Frontend** |
+|:---:|:---:|:---:|
+| 🖥️ Abrir Proteus | 📘 `npx ts-node server.ts` | ⚛️ `npm run dev` |
+| 🔌 Iniciar simulación | 🌐 Puerto 3000 | 🎨 Puerto 5173 |
+| 📡 Verificar COM | ✅ API funcionando | 🎮 ¡A jugar! |
 
 ## 📖 Uso del Sistema
 
@@ -163,24 +262,71 @@ Para información detallada sobre los endpoints disponibles, consulte el archivo
 - `GET /api/gameState` - Estado del juego
 - `POST /api/resetGame` - Reiniciar partida
 
-## 🐛 Solución de Problemas
+## 🐛 Centro de Solución de Problemas
 
-### Problemas Comunes
+<div align="center">
 
-**Error de conexión serial:**
-- Verificar Virtual Serial Port Driver
-- Comprobar puerto COM en configuración
-- Reiniciar simulación Proteus
+### 🔧 **Diagnósticos Rápidos**
 
-**Backend no inicia:**
-- Verificar instalación TypeScript: `npm install -g typescript`
-- Instalar dependencias: `npm install`
-- Verificar puerto 3000 disponible
+</div>
 
-**Frontend no carga:**
-- Verificar Node.js versión: `node --version`
-- Limpiar caché: `npm run build`
-- Verificar puerto 5173 disponible
+<details>
+<summary><strong>❌ Error de conexión serial</strong></summary>
+
+**Síntomas:** Arduino no responde, errores COM
+
+**Soluciones:**
+- ✅ Verificar Virtual Serial Port Driver instalado
+- ✅ Comprobar puerto COM en configuración (Device Manager)  
+- ✅ Reiniciar simulación Proteus completamente
+- ✅ Verificar que no hay otros programas usando el puerto
+
+**Comando diagnóstico:**
+```bash
+# Windows - Listar puertos COM
+mode
+```
+
+</details>
+
+<details>
+<summary><strong>🚫 Backend no inicia</strong></summary>
+
+**Síntomas:** Error al ejecutar `npx ts-node`, dependencias faltantes
+
+**Soluciones:**
+- ✅ Verificar Node.js: `node --version` (requiere v18+)
+- ✅ Instalar TypeScript globalmente: `npm install -g typescript`  
+- ✅ Reinstalar dependencias: `rm -rf node_modules && npm install`
+- ✅ Verificar puerto 3000 libre: `netstat -ano | findstr :3000`
+
+**Comando diagnóstico:**
+```bash
+npm list typescript
+npx tsc --version
+```
+
+</details>
+
+<details>
+<summary><strong>⚛️ Frontend no carga</strong></summary>
+
+**Síntomas:** Pantalla en blanco, errores de Vite
+
+**Soluciones:**
+- ✅ Verificar Node.js versión: `node --version`
+- ✅ Limpiar cache: `npm run build && rm -rf dist`
+- ✅ Verificar puerto 5173: `netstat -ano | findstr :5173`
+- ✅ Reinstalar: `rm -rf node_modules package-lock.json && npm install`
+
+**Comando diagnóstico:**
+```bash
+npm run dev -- --verbose
+```
+
+</details>
+
+---
 
 ## 👥 Desarrollo
 
@@ -190,15 +336,10 @@ Para información detallada sobre los endpoints disponibles, consulte el archivo
 - `npx ts-node server.ts` - Ejecutar en desarrollo
 
 **Frontend:**
+
 - `npm run dev` - Servidor desarrollo
 - `npm run build` - Build producción
 - `npm run lint` - Verificar código
 
 
-## 📝 Licencia
-
-Este proyecto es para fines educativos como parte del curso de Organización de Computadoras.
-
-
-
-*Proyecto Final - Organización de Computadoras 2025*
+</div>
